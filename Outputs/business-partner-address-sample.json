@@ -1,0 +1,18 @@
+{
+	"cursor": "/Users/latona2/bitbucket/sap-api-integrations-business-partner-reads/SAP_API_Caller/caller.go#L88",
+	"function": "sap-api-integrations-business-partner-reads/SAP_API_Caller.(*SAPAPICaller).Address",
+	"level": "INFO",
+	"message": {
+		"BusinessPartner": "1000061",
+		"AddressID": "25260",
+		"ValidityStartDate": "/Date(1499040000000+0000)/",
+		"ValidityEndDate": "/Date(253402300799000+0000)/",
+		"Country": "US",
+		"Region": "AL",
+		"StreetName": "",
+		"CityName": "BOOTH",
+		"PostalCode": "",
+		"Language": "EN"
+	},
+	"time": "2021-12-20T10:39:46.243399+09:00"
+}
