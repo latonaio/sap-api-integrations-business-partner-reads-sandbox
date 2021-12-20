@@ -57,7 +57,7 @@
 			"ValidTo": ""
 		},
 		"Address": {
-			"AddressID": "",
+			"AddressID": "27518",
 			"ValidityStartDate": "",
 			"ValidityEndDate": "",
 			"Country": "",
@@ -69,9 +69,9 @@
 		},
 		"Bank": {
 			"BankIdentification": "",
-			"BankCountryKey": "",
+			"BankCountryKey": "US",
 			"BankName": "",
-			"BankNumber": "",
+			"BankNumber": "CITIUS33XXX",
 			"SWIFTCode": "",
 			"BankControlKey": "",
 			"BankAccountHolderName": "",
@@ -88,7 +88,7 @@
 		}
 	},
 	"api_schema": "sap.s4.beh.businesspartner.v1.BusinessPartner.Created.v1",
-	"accepter": ["Role"],
+	"accepter": ["All"],
 	"business_partner_code": "1000140",
 	"deleted": false
 }

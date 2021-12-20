@@ -24,8 +24,10 @@ sap-api-integrations-business-partner-reads が対応する APIサービス は�
 ## 本レポジトリ に 含まれる API名
 sap-api-integrations-business-partner-reads には、次の API をコールするためのリソースが含まれています。  
 
+* A_BusinessPartner（ビジネスパートナ - 一般）
 * A_BusinessPartnerRole（ビジネスパートナ - ロール）
 * A_BusinessPartnerAddress（ビジネスパートナ - アドレス）
+* A_BusinessPartnerBank（ビジネスパートナ - 銀行）
 
 ## API への 値入力条件 の 初期値
 sap-api-integrations-business-partner-readsにおいて、API への値入力条件の初期値は、入力ファイルレイアウトの種別毎に、次の通りとなっています。  
@@ -33,8 +35,10 @@ sap-api-integrations-business-partner-readsにおいて、API への値入力条
 ### SDC レイアウト
 
 * inoutSDC.BusinessPartner.BusinessPartner（ビジネスパートナ）
-* inoutSDC.BusinessPartner.BusinessPartnerRole（ビジネスパートナロール）
+* inoutSDC.BusinessPartner.Role.BusinessPartnerRole（ビジネスパートナロール）
 * inoutSDC.BusinessPartner.Address.AddressID（アドレスID）
+* inoutSDC.BusinessPartner.Bank.BankCountryKey（銀行国コード）
+* inoutSDC.BusinessPartner.Bank.BankNumber（銀行コード）
 
 ## SAP API Bussiness Hub の API の選択的コール
 
@@ -47,10 +51,10 @@ accepter において 下記の例のように、データの種別（＝APIの�
 ここでは、"Role" が指定されています。    
   
 ```
-  "api_schema": "sap.s4.beh.businesspartner.v1.BusinessPartner.Created.v1",
-  "accepter": ["Role"],
-  "business_partner_code": "1000000",
-  "deleted": false
+	"api_schema": "sap.s4.beh.businesspartner.v1.BusinessPartner.Created.v1",
+	"accepter": ["Role"],
+	"business_partner_code": "1000140",
+	"deleted": false
 ```
   
 * 全データを取得する際のsample.jsonの記載例(2)  
@@ -58,10 +62,10 @@ accepter において 下記の例のように、データの種別（＝APIの�
 全データを取得する場合、sample.json は以下のように記載します。  
 
 ```
-  "api_schema": "sap.s4.beh.businesspartner.v1.BusinessPartner.Created.v1",
-  "accepter": ["All"],
-  "business_partner_code": "1000000",
-  "deleted": false
+	"api_schema": "sap.s4.beh.businesspartner.v1.BusinessPartner.Created.v1",
+	"accepter": ["ALL"],
+	"business_partner_code": "1000140",
+	"deleted": false
 ```
 
 ## 指定されたデータ種別のコール
@@ -70,11 +74,16 @@ accepter における データ種別 の指定に基づいて SAP_API_Caller �
 caller.go の func() 毎 の 以下の箇所が、指定された API をコールするソースコードです。  
 
 ```
-func (c *SAPAPICaller) AsyncGetBP(businessPartner, businessPartnerRole, addressID string, accepter []string) {
+func (c *SAPAPICaller) AsyncGetBP(businessPartner, businessPartnerRole, addressID, bankCountryKey, bankNumber string, accepter []string) {
 	wg := &sync.WaitGroup{}
 	wg.Add(len(accepter))
 	for _, fn := range accepter {
 		switch fn {
+		case "General":
+			func() {
+				c.General(businessPartner)
+				wg.Done()
+			}()
 		case "Role":
 			func() {
 				c.Role(businessPartner, businessPartnerRole)
@@ -83,6 +92,11 @@ func (c *SAPAPICaller) AsyncGetBP(businessPartner, businessPartnerRole, addressI
 		case "Address":
 			func() {
 				c.Address(businessPartner, addressID)
+				wg.Done()
+			}()
+		case "Bank":
+			func() {
+				c.Bank(businessPartner, bankCountryKey, bankNumber)
 				wg.Done()
 			}()
 		default:
