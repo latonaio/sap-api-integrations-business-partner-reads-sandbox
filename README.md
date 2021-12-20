@@ -63,7 +63,7 @@ accepter において 下記の例のように、データの種別（＝APIの�
 
 ```
 	"api_schema": "sap.s4.beh.businesspartner.v1.BusinessPartner.Created.v1",
-	"accepter": ["ALL"],
+	"accepter": ["All"],
 	"business_partner_code": "1000140",
 	"deleted": false
 ```
