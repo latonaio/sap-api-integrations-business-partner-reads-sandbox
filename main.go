@@ -10,7 +10,7 @@ import (
 func main() {
 	l := logger.NewLogger()
 	fr := sap_api_input_reader.NewFileReader()
-	inoutSDC := fr.ReadSDC("./Inputs//SDC_Business_Partner_All_sample.json")
+	inoutSDC := fr.ReadSDC("./Inputs//SDC_Business_Partner_BPName_sample.json")
 	caller := sap_api_caller.NewSAPAPICaller(
 		"https://sandbox.api.sap.com/s4hanacloud/sap/opu/odata/sap/", l,
 	)
@@ -18,7 +18,7 @@ func main() {
 	accepter := inoutSDC.Accepter
 	if len(accepter) == 0 || accepter[0] == "All" {
 		accepter = []string{
-			"General", "Role", "Address", "Bank",
+			"General", "Role", "Address", "Bank", "BPName",
 		}
 	}
 
@@ -28,6 +28,7 @@ func main() {
 		inoutSDC.BusinessPartner.Address.AddressID,
 		inoutSDC.BusinessPartner.Bank.BankCountryKey,
 		inoutSDC.BusinessPartner.Bank.BankNumber,
+		inoutSDC.BusinessPartner.BusinessPartnerName,
 		accepter,
 	)
 }

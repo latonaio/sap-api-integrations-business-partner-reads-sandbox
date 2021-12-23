@@ -26,7 +26,7 @@ func NewSAPAPICaller(baseUrl string, l *logger.Logger) *SAPAPICaller {
 	}
 }
 
-func (c *SAPAPICaller) AsyncGetBP(businessPartner, businessPartnerRole, addressID, bankCountryKey, bankNumber string, accepter []string) {
+func (c *SAPAPICaller) AsyncGetBP(businessPartner, businessPartnerRole, addressID, bankCountryKey, bankNumber, bPName string, accepter []string) {
 	wg := &sync.WaitGroup{}
 	wg.Add(len(accepter))
 	for _, fn := range accepter {
@@ -49,6 +49,11 @@ func (c *SAPAPICaller) AsyncGetBP(businessPartner, businessPartnerRole, addressI
 		case "Bank":
 			func() {
 				c.Bank(businessPartner, bankCountryKey, bankNumber)
+				wg.Done()
+			}()
+		case "BPName":
+			func() {
+				c.BPName(bPName)
 				wg.Done()
 			}()
 		default:
@@ -258,6 +263,37 @@ func (c *SAPAPICaller) callBPSrvAPIRequirementBank(api, businessPartner, bankCou
 	return data, nil
 }
 
+func (c *SAPAPICaller) BPName(bPName string) {
+	bPNameData, err := c.callBPSrvAPIRequirementBPName("A_BusinessPartner", bPName)
+	if err != nil {
+		c.log.Error(err)
+		return
+	}
+	c.log.Info(bPNameData)
+
+}
+
+func (c *SAPAPICaller) callBPSrvAPIRequirementBPName(api, bPName string) ([]sap_api_output_formatter.General, error) {
+	url := strings.Join([]string{c.baseURL, "API_BUSINESS_PARTNER", api}, "/")
+	req, _ := http.NewRequest("GET", url, nil)
+
+	c.setHeaderAPIKeyAccept(req)
+	c.getQueryWithBPName(req, bPName)
+
+	resp, err := new(http.Client).Do(req)
+	if err != nil {
+		return nil, xerrors.Errorf("API request error: %w", err)
+	}
+	defer resp.Body.Close()
+
+	byteArray, _ := ioutil.ReadAll(resp.Body)
+	data, err := sap_api_output_formatter.ConvertToGeneral(byteArray, c.log)
+	if err != nil {
+		return nil, xerrors.Errorf("convert error: %w", err)
+	}
+	return data, nil
+}
+
 func (c *SAPAPICaller) setHeaderAPIKeyAccept(req *http.Request) {
 	req.Header.Set("APIKey", c.apiKey)
 	req.Header.Set("Accept", "application/json")
@@ -284,5 +320,11 @@ func (c *SAPAPICaller) getQueryWithAddress(req *http.Request, businessPartner, a
 func (c *SAPAPICaller) getQueryWithBank(req *http.Request, businessPartner, bankCountryKey, bankNumber string) {
 	params := req.URL.Query()
 	params.Add("$filter", fmt.Sprintf("BusinessPartner eq '%s' and BankCountryKey eq '%s' and BankNumber eq '%s", businessPartner, bankCountryKey, bankNumber))
+	req.URL.RawQuery = params.Encode()
+}
+
+func (c *SAPAPICaller) getQueryWithBPName(req *http.Request, bPName string) {
+	params := req.URL.Query()
+	params.Add("$filter", fmt.Sprintf("substringof('%s', BusinessPartnerName)", bPName))
 	req.URL.RawQuery = params.Encode()
 }
