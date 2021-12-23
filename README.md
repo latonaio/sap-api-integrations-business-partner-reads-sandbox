@@ -39,6 +39,7 @@ sap-api-integrations-business-partner-readsにおいて、API への値入力条
 * inoutSDC.BusinessPartner.Address.AddressID（アドレスID）
 * inoutSDC.BusinessPartner.Bank.BankCountryKey（銀行国コード）
 * inoutSDC.BusinessPartner.Bank.BankNumber（銀行コード）
+* inoutSDC.BusinessPartner.BusinessPartnerName（ビジネスパートナ名）
 
 ## SAP API Bussiness Hub の API の選択的コール
 
@@ -74,7 +75,7 @@ accepter における データ種別 の指定に基づいて SAP_API_Caller �
 caller.go の func() 毎 の 以下の箇所が、指定された API をコールするソースコードです。  
 
 ```
-func (c *SAPAPICaller) AsyncGetBP(businessPartner, businessPartnerRole, addressID, bankCountryKey, bankNumber string, accepter []string) {
+func (c *SAPAPICaller) AsyncGetBP(businessPartner, businessPartnerRole, addressID, bankCountryKey, bankNumber, bPName string, accepter []string) {
 	wg := &sync.WaitGroup{}
 	wg.Add(len(accepter))
 	for _, fn := range accepter {
@@ -97,6 +98,11 @@ func (c *SAPAPICaller) AsyncGetBP(businessPartner, businessPartnerRole, addressI
 		case "Bank":
 			func() {
 				c.Bank(businessPartner, bankCountryKey, bankNumber)
+				wg.Done()
+			}()
+		case "BPName":
+			func() {
+				c.BPName(bPName)
 				wg.Done()
 			}()
 		default:
