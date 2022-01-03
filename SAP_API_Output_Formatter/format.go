@@ -2,7 +2,7 @@ package sap_api_output_formatter
 
 import (
 	"encoding/json"
-	"sap-api-integrations-business-partner-reads/SAP_API_Caller/responses"
+	"sap-api-integrations-business-partner-reads-rmq-kube/SAP_API_Caller/responses"
 
 	"github.com/latonaio/golang-logging-library/logger"
 	"golang.org/x/xerrors"
