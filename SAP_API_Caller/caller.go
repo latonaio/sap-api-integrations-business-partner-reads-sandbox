@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	sap_api_output_formatter "sap-api-integrations-business-partner-reads-rmq-kube/SAP_API_Output_Formatter"
+	sap_api_output_formatter "sap-api-integrations-business-partner-reads/SAP_API_Output_Formatter"
 	"strings"
 	"sync"
 
@@ -12,25 +12,17 @@ import (
 	"golang.org/x/xerrors"
 )
 
-type RMQOutputter interface {
-	Send(sendQueue string, payload map[string]interface{}) error
-}
-
 type SAPAPICaller struct {
-	baseURL      string
-	apiKey       string
-	outputQueues []string
-	outputter    RMQOutputter
-	log          *logger.Logger
+	baseURL string
+	apiKey  string
+	log     *logger.Logger
 }
 
-func NewSAPAPICaller(baseUrl string, outputQueueTo []string, outputter RMQOutputter, l *logger.Logger) *SAPAPICaller {
+func NewSAPAPICaller(baseUrl string, l *logger.Logger) *SAPAPICaller {
 	return &SAPAPICaller{
-		baseURL:      baseUrl,
-		apiKey:       GetApiKey(),
-		outputQueues: outputQueueTo,
-		outputter:    outputter,
-		log:          l,
+		baseURL: baseUrl,
+		apiKey:  GetApiKey(),
+		log:     l,
 	}
 }
 
@@ -78,19 +70,9 @@ func (c *SAPAPICaller) General(businessPartner string) {
 		c.log.Error(err)
 		return
 	}
-	err = c.outputter.Send(c.outputQueues[0], map[string]interface{}{"message": generalData, "function": "BusinessPartnerGeneral"})
-	if err != nil {
-		c.log.Error(err)
-		return
-	}
 	c.log.Info(generalData)
 
 	roleData, err := c.callToRole(generalData[0].ToRole)
-	if err != nil {
-		c.log.Error(err)
-		return
-	}
-	err = c.outputter.Send(c.outputQueues[0], map[string]interface{}{"message": roleData, "function": "BusinessPartnerRole"})
 	if err != nil {
 		c.log.Error(err)
 		return
@@ -102,19 +84,9 @@ func (c *SAPAPICaller) General(businessPartner string) {
 		c.log.Error(err)
 		return
 	}
-	err = c.outputter.Send(c.outputQueues[0], map[string]interface{}{"message": addressData, "function": "BusinessPartnerAddress"})
-	if err != nil {
-		c.log.Error(err)
-		return
-	}
 	c.log.Info(addressData)
-
+	
 	bankData, err := c.callToBank(generalData[0].ToBank)
-	if err != nil {
-		c.log.Error(err)
-		return
-	}
-	err = c.outputter.Send(c.outputQueues[0], map[string]interface{}{"message": bankData, "function": "BusinessPartnerBank"})
 	if err != nil {
 		c.log.Error(err)
 		return
@@ -204,11 +176,6 @@ func (c *SAPAPICaller) Role(businessPartner, businessPartnerRole string) {
 		c.log.Error(err)
 		return
 	}
-	err = c.outputter.Send(c.outputQueues[0], map[string]interface{}{"message": roleData, "function": "BusinessPartnerRole"})
-	if err != nil {
-		c.log.Error(err)
-		return
-	}
 	c.log.Info(roleData)
 
 }
@@ -236,11 +203,6 @@ func (c *SAPAPICaller) callBPSrvAPIRequirementRole(api, businessPartner, busines
 
 func (c *SAPAPICaller) Address(businessPartner, addressID string) {
 	addressData, err := c.callBPSrvAPIRequirementAddress("A_BusinessPartnerAddress", businessPartner, addressID)
-	if err != nil {
-		c.log.Error(err)
-		return
-	}
-	err = c.outputter.Send(c.outputQueues[0], map[string]interface{}{"message": addressData, "function": "BusinessPartnerAddress"})
 	if err != nil {
 		c.log.Error(err)
 		return
@@ -276,11 +238,6 @@ func (c *SAPAPICaller) Bank(businessPartner, bankCountryKey, bankNumber string) 
 		c.log.Error(err)
 		return
 	}
-	err = c.outputter.Send(c.outputQueues[0], map[string]interface{}{"message": bankData, "function": "BusinessPartnerBank"})
-	if err != nil {
-		c.log.Error(err)
-		return
-	}
 	c.log.Info(bankData)
 
 }
@@ -308,11 +265,6 @@ func (c *SAPAPICaller) callBPSrvAPIRequirementBank(api, businessPartner, bankCou
 
 func (c *SAPAPICaller) BPName(bPName string) {
 	bPNameData, err := c.callBPSrvAPIRequirementBPName("A_BusinessPartner", bPName)
-	if err != nil {
-		c.log.Error(err)
-		return
-	}
-	err = c.outputter.Send(c.outputQueues[0], map[string]interface{}{"message": bPNameData, "function": "BusinessPartnerGeneral"})
 	if err != nil {
 		c.log.Error(err)
 		return

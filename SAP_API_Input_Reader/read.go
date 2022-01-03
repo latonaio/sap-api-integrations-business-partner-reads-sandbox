@@ -3,14 +3,21 @@ package sap_api_input_reader
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"os"
 )
 
-func ConvertToECMC(data map[string]interface{}) EC_MC {
-	raw, err := json.Marshal(data)
+type FileReader struct{}
+
+func NewFileReader() *FileReader {
+	return &FileReader{}
+}
+
+func (*FileReader) ReadECMC(path string) EC_MC {
+	raw, err := ioutil.ReadFile(path)
 	if err != nil {
-		fmt.Printf("data marshal error :%#v", err.Error())
-		return EC_MC{}
+		fmt.Printf("input data read error :%#v", err.Error())
+		os.Exit(1)
 	}
 	ec := EC_MC{}
 	err = json.Unmarshal(raw, &ec)
@@ -22,11 +29,11 @@ func ConvertToECMC(data map[string]interface{}) EC_MC {
 	return ec
 }
 
-func ConvertToSDC(data map[string]interface{}) SDC {
-	raw, err := json.Marshal(data)
+func (*FileReader) ReadSDC(path string) SDC {
+	raw, err := ioutil.ReadFile(path)
 	if err != nil {
-		fmt.Printf("data marshal error :%#v", err.Error())
-		return SDC{}
+		fmt.Printf("input data read error :%#v", err.Error())
+		os.Exit(1)
 	}
 	sdc := SDC{}
 	err = json.Unmarshal(raw, &sdc)
