@@ -117,21 +117,23 @@ func (c *SAPAPICaller) AsyncGetBP(businessPartner, businessPartnerRole, addressI
 }
 ```
 ## Output  
-本マイクロサービスでは、[golang-logging-library](https://github.com/latonaio/golang-logging-library) により、以下のようなデータがJSON形式で出力されます。  
+本マイクロサービスでは、[golang-logging-library-for-sap](https://github.com/latonaio/golang-logging-library-for-sap) により、以下のようなデータがJSON形式で出力されます。  
 以下の sample.json の例は、ビジネスパートナ の ロール が取得された結果の JSON の例です。  
-以下の項目のうち、"BusinessPartner" ～ "ValidTo" は、/SAP_API_Output_Formatter/type.go 内 の Type Role {} による出力結果です。"cursor" ～ "time"は、golang-logging-library による 定型フォーマットの出力結果です。  
+以下の項目のうち、"BusinessPartner" ～ "ValidTo" は、/SAP_API_Output_Formatter/type.go 内 の Type Role {} による出力結果です。"cursor" ～ "time"は、golang-logging-library-for-sap による 定型フォーマットの出力結果です。  
 
 ```
 {
-	"cursor": "/Users/latona2/bitbucket/sap-api-integrations-business-partner-reads/SAP_API_Caller/caller.go#L58",
+	"cursor": "/Users/latona2/bitbucket/sap-api-integrations-business-partner-reads/SAP_API_Caller/caller.go#L179",
 	"function": "sap-api-integrations-business-partner-reads/SAP_API_Caller.(*SAPAPICaller).Role",
 	"level": "INFO",
-	"message": {
-		"BusinessPartner": "1000000",
-		"BusinessPartnerRole": "TR0703",
-		"ValidFrom": "/Date(1473206400000+0000)/",
-		"ValidTo": "/Date(253402300799000+0000)/"
-	},
-	"time": "2021-12-20T10:21:51.101706+09:00"
+	"message": [
+		{
+			"BusinessPartner": "1000140",
+			"BusinessPartnerRole": "FLCU01",
+			"ValidFrom": "",
+			"ValidTo": ""
+		}
+	],
+	"time": "2022-01-27T17:47:10+09:00"
 }
 ```
